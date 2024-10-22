@@ -19,7 +19,7 @@ export const SideAdmin = () => {
         <ul className="space-y-6 p-6">
           {/* Icono de Ordenes */}
           <li>
-            <Link href="/admin" className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
+            <Link href="/admin/orders" className="flex items-center space-x-2 hover:bg-gray-200 p-2 rounded">
               <IoCartOutline size={20} />
               <span>Ordenes</span>
             </Link>
@@ -27,14 +27,14 @@ export const SideAdmin = () => {
           {/* Icono de Agregar Productos */}
           <li>
             <h1>Productos</h1>
-            <Link href="/admin/users" className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
+            <Link href="/admin/products" className="flex items-center space-x-2 hover:bg-gray-200 p-2 rounded">
               <IoAddCircleOutline size={20} />
               <span>Agregar Productos</span>
             </Link>
           </li>
           {/* Icono de Lista de productos */}
           <li>
-            <Link href="/admin/stats" className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded">
+            <Link href="/admin" className="flex items-center space-x-2 hover:bg-gray-200 p-2 rounded">
               <IoCubeOutline size={20} />
               <span>Lista de Productos</span>
             </Link>
