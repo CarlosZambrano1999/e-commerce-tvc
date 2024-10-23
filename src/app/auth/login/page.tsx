@@ -27,7 +27,7 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Guardar token y datos del usuario en las cookies
+        console.log('usuario', data.usuario);
         Cookies.set('token', data.token);
         Cookies.set('usuario', data.usuario);
 

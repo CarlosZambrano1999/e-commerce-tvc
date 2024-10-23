@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
+import { IoAddCircleOutline } from 'react-icons/io5';
 
 interface Props {
     product: {
@@ -23,8 +24,8 @@ export const ProductGridItem = ( {product} : Props) => {
                 src={product.imagen}
                 alt={product.nombre}
                 className="object-cover rounded-lg"
-                width={300}
-                height={300}
+                width={200}
+                height={200}
             />
         </Link>
 
@@ -40,6 +41,11 @@ export const ProductGridItem = ( {product} : Props) => {
             <p>
                 ${product.descripcion}
             </p>
+            <Link 
+                className='bg-black pl-5 pr-5 rounded-lg m-5 text-white font-bold flex items-center w-50'
+                href={`/product/${product._id}`}>
+                <IoAddCircleOutline /> Añadir al carrito
+            </Link>
             
         </div>
     </div>

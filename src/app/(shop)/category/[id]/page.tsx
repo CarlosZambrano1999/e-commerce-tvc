@@ -1,8 +1,8 @@
 'use client'
-import { Title } from "@/components";
 import Image from 'next/image';
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { IoAddCircleOutline, IoChevronForwardOutline } from "react-icons/io5";
 
 const labels: Record<string, string> = {
   'hogar': 'Hogar',
@@ -78,11 +78,15 @@ export default function Categories( {params}: Props){
 
   return (
     <>
-      <Title
-        title={`Artículos de ${labels[id]}`}
-        subtitle="Todos los productos"
-        className="mb-2"
-      />
+      <div className="m-2">
+        <div className="flex items-center">
+          <span>Categoría</span>
+          <IoChevronForwardOutline className="mx-2" />
+          <span>{labels[id]}</span>
+        </div>
+        <h4 className="text-lg mt-2 mb-4"> <b>{labels[id]}</b></h4>
+      </div>
+
 
       {/* Renderizar los productos filtrados */}
       <div className="grid grid-cols-4 sm:grid-cols-3 gap-10 mb-10">
@@ -109,6 +113,11 @@ export default function Categories( {params}: Props){
                   </div>
                 </Link>
                 <p>${product.descripcion}</p>
+                <Link 
+                  className='bg-black pl-5 pr-5 rounded-lg m-5 text-white font-bold flex items-center w-50'
+                  href={`/product/${product._id}`}>
+                  <IoAddCircleOutline /> Añadir al carrito
+              </Link>
               </div>
             </div>
           ))

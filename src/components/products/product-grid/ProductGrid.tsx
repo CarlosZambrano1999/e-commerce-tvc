@@ -52,7 +52,7 @@ export const ProductGrid = () => {
 
     return (
         <div>
-            <div className="grid grid-cols-4 sm:grid-cols-3 gap-10 mb-10">
+            <div className="grid grid-cols-5 sm:grid-cols-4 gap-10 mb-10">
                 {
                     currentProducts.map(product => (
                         <ProductGridItem
