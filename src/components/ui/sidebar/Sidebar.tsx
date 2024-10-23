@@ -2,12 +2,28 @@
 import { useUIStore } from '@/store';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React from 'react'
-import { IoCloseOutline, IoLogInOutline, IoLogOutOutline, IoPeopleOutline, IoPersonOutline, IoSearchOutline, IoShirtOutline, IoTicketOutline } from 'react-icons/io5'
+import { IoCartOutline, IoCloseOutline, IoLogInOutline, IoLogOutOutline, IoPeopleOutline, IoPersonOutline, IoSearchOutline, IoShirtOutline, IoTicketOutline } from 'react-icons/io5'
 
 export const Sidebar = () => {
     const isSideMenuOpen = useUIStore(state => state.isSideMenuOpen);
     const closeMenu = useUIStore(state => state.closeSideMenu);
+    const router = useRouter();
+
+    const Logout = () => {
+        const confirmed = window.confirm('¿Estás seguro de que deseas cerrar sesión?');
+    
+        if(confirmed){
+          document.cookie.split(";").forEach(cookie => {
+            const [name] = cookie.split("=");
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+          });
+      
+          router.push('/auth/login');
+        }
+      };
+
   return (
     <div>
         {
@@ -30,7 +46,7 @@ export const Sidebar = () => {
         <nav className={
             clsx(
                 'fixed p-5 right-0 top-0 h-screen bg-white z-20 shadow-2xl transform transition-all duration-300',
-                'w-[100%] xs:w-[200px] sm:w-[250px] md:w-[300px] lg:w-[400px] xl:w-[500px]',
+                'w-[100%] xs:w-[200px] sm:w-[250px] md:w-[250px] lg:w-[300px] xl:w-[400px]',
                 {
                     "translate-x-full": !isSideMenuOpen
                 }
@@ -60,7 +76,7 @@ export const Sidebar = () => {
             </Link>
 
             <Link
-                href="/"
+                href="/orders"
                 className='flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all'
             >
                 <IoTicketOutline size={30}/>
@@ -68,7 +84,7 @@ export const Sidebar = () => {
             </Link>
 
             <Link
-                href="/"
+                href="/auth/login"
                 className='flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all'
             >
                 <IoLogInOutline size={30}/>
@@ -76,7 +92,8 @@ export const Sidebar = () => {
             </Link>
 
             <Link
-                href="/"
+                href="/auth/login"
+                onClick={Logout}
                 className='flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all'
             >
                 <IoLogOutOutline size={30}/>
@@ -93,19 +110,11 @@ export const Sidebar = () => {
             </Link>
 
             <Link
-                href="/"
+                href="/cart"
                 className='flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all'
             >
-                <IoTicketOutline size={30}/>
-                <span className="ml-3 txt-xl">Ordenes</span> 
-            </Link>
-
-            <Link
-                href="/"
-                className='flex items-center mt-10 p-2 hover:bg-gray-100 rounded transition-all'
-            >
-                <IoPeopleOutline size={30}/>
-                <span className="ml-3 txt-xl">Usuarios</span> 
+                <IoCartOutline size={30}/>
+                <span className="ml-3 txt-xl">Carrito</span> 
             </Link>
         </nav>
     </div>

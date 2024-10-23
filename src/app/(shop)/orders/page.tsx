@@ -1,75 +1,136 @@
+'use client'; 
+import React from 'react'
+import { useEffect, useState } from "react";
+import { useRouter } from 'next/navigation'; 
+import Cookies from 'js-cookie';
+import { IoChevronDownOutline} from "react-icons/io5";
+import { BACKEND_URI } from '@/app/common';
 import { Title } from '@/components';
 
-import Link from 'next/link';
-import { IoCardOutline } from 'react-icons/io5';
-
 export default function Orders() {
+  const router = useRouter();
+  const token = Cookies.get('token'); 
+
+
+  const [orders, setOrders] = useState<any[]>([]);
+
+  const [currentPage, setCurrentPage] = useState(1); 
+  const itemsPerPage = 10; 
+
+  const indexOfLastOrder = currentPage * itemsPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+  const currentOrders = orders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+  useEffect(() => {
+    
+    if (!token) {
+      router.push('/auth/login');
+    }
+  }, [router]); 
+
+  const fetchOrders = async () => {
+    const user_id = Cookies.get('user');
+    try {
+      const response = await fetch(`${BACKEND_URI}/orden/${user_id}`); 
+      if (!response.ok) {
+        throw new Error('Error fetching data');
+      }
+      const data = await response.json();
+      setOrders(data); // 
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } 
+  };
+  
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
   return (
     <>
-      <Title title="Orders" />
+      <Title title="Mis Ordenes" />
 
-      <div className="mb-10">
-        <table className="min-w-full">
-          <thead className="bg-gray-200 border-b">
-            <tr>
-              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                #ID
-              </th>
-              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                Nombre completo
-              </th>
-              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                Estado
-              </th>
-              <th scope="col" className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-                Opciones
-              </th>
+      <div className="mb-10 mt-5">
+        <table className="min-w-full mb-5">
+          <thead>
+            <tr className="text-gray-300 text-sm">
+              <th className="px-4 py-2">ORDER ID</th>
+              <th className="px-4 py-2">CREADA</th>
+              <th className="px-4 py-2">CLIENTE</th>
+              <th className="px-4 py-2">TOTAL</th>
+              <th className="px-4 py-2">ARTICULOS</th>
+              <th className="px-4 py-2">STATUS</th>
+              <th className="px-4 py-2"></th>
             </tr>
           </thead>
+
           <tbody>
-
-            <tr className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
-
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
-              <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                Mark
-              </td>
-              <td className="flex items-center text-sm  text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-
-                <IoCardOutline className="text-green-800" />
-                <span className='mx-2 text-green-800'>Pagada</span>
-
-              </td>
-              <td className="text-sm text-gray-900 font-light px-6 ">
-                <Link href="/orders/123" className="hover:underline">
-                  Ver orden
-                </Link>
-              </td>
-
-            </tr>
-
-            <tr className="bg-white border-b transition duration-300 ease-in-out hover:bg-gray-100">
-
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
-              <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                Mark
-              </td>
-              <td className="flex items-center text-sm  text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-
-                <IoCardOutline className="text-red-800" />
-                <span className='mx-2 text-red-800'>No Pagada</span>
-
-              </td>
-              <td className="text-sm text-gray-900 font-light px-6 ">
-                <Link href="/orders/123" className="hover:underline">
-                  Ver orden
-                </Link>
-              </td>
-
-            </tr>
-
+                {currentOrders.map((order) => (
+                  <tr key={order._id}>
+                    <td className="border px-4 py-2">{`${order._id.slice(0, 4)}${order._id.slice(-2)}`}</td>
+                    <td className="border px-4 py-2">
+                      {new Intl.DateTimeFormat('es-ES', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                      }).format(new Date(order.fecha_creacion))}
+                    </td>
+                    <td className="border px-4 py-2">{order.nombre_cliente}</td>
+                    <td className="border px-4 py-2">${order.total}</td>
+                    <td className="border px-4 py-2">{order.items}</td>
+                    <td className="border px-4 py-2">{order.status}</td>
+                    <td className="border px-4 py-2">
+                      <button>
+                        <IoChevronDownOutline />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
+        {/* Paginación */}
+        <div className="flex justify-center">
+          <nav>
+            <ul className="inline-flex space-x-2">
+              {/* Botón "Anterior" */}
+              <li>
+                <button
+                  className={`px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-300' : 'bg-gray-500 text-white'}`}
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </button>
+              </li>
+
+              {/* Números de páginas */}
+              {[...Array(totalPages)].map((_, i) => (
+                <li key={i}>
+                  <button
+                    className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-[#f9c301] text-white' : 'bg-gray-500 text-white'}`}
+                    onClick={() => paginate(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
+
+              {/* Botón "Siguiente" */}
+              <li>
+                <button
+                  className={`px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-300' : 'bg-gray-500 text-white'}`}
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Siguiente
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </>
   );

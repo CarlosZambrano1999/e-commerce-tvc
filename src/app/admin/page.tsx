@@ -10,6 +10,7 @@ import { BACKEND_URI } from "../common";
 export default function Admin() {
   const router = useRouter();
   const token = Cookies.get('token'); 
+  const rol = Cookies.get('rol');
 
 
   const [products, setProducts] = useState<any[]>([]);
@@ -47,6 +48,11 @@ export default function Admin() {
     if (!token) {
       router.push('/auth/login');
     }
+
+    if(rol==='cliente'){
+      router.push('/');
+    }
+
   }, [router]); 
 
   const fetchProducts = async () => {
@@ -71,7 +77,7 @@ export default function Admin() {
     if (!result)
       return;
     
-    const deleteResponse = await fetch(`http://localhost:8888/productos/eliminarProducto/${productId}`, 
+    const deleteResponse = await fetch(`${BACKEND_URI}/productos/eliminarProducto/${productId}`, 
       {
         method: 'DELETE',
         headers: {
@@ -89,7 +95,20 @@ export default function Admin() {
     router.push(`/admin/products?id=${productId}`);
   }
 
-  if(!!token){
+  const Logout = () => {
+    const confirmed = window.confirm('¿Estás seguro de que deseas cerrar sesión?');
+
+    if(confirmed){
+      document.cookie.split(";").forEach(cookie => {
+        const [name] = cookie.split("=");
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+      });
+  
+      router.push('/auth/login');
+    }
+  };
+
+  if(!!token && rol=='administrador'){
     return (
       <div className="flex">
         {/* Sidebar */}
@@ -101,7 +120,8 @@ export default function Admin() {
             <div><h1 className="text-3xl">Productos</h1></div>
             <div className='relative'>
               <button
-                className="w-12 h-12 rounded-full bg-[#f9c301] flex items-center justify-center">
+                className="w-12 h-12 rounded-full bg-[#f9c301] flex items-center justify-center"
+                onClick={Logout}>
                 <span className="text-black font-bold"></span>
               </button>            
               <span className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>

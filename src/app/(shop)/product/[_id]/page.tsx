@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { QuantitySelector } from "@/components";
-import {notFound,useRouter} from "next/navigation";
+import {notFound} from "next/navigation";
 import { IoAddCircleOutline } from 'react-icons/io5';
 import { BACKEND_URI } from '@/app/common';
 
@@ -28,7 +28,7 @@ export default function ProductId( {params}: Props){
   const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -65,9 +65,7 @@ export default function ProductId( {params}: Props){
     const handleAddToCart = () => {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
       const existingProductIndex = cart.findIndex((item: any) => item.producto_id === product._id);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-
-
+  
       if (existingProductIndex !== -1) {
         // Si el producto ya existe en el carrito, actualizar la cantidad
         const existingProduct = cart[existingProductIndex];

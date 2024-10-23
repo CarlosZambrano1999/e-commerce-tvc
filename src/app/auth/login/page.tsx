@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { BACKEND_URI } from '@/app/common';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = async () => {
+    const cart = localStorage.getItem('cart');
     if (!email || !password) {
       setErrorMessage('Por favor, ingresa tu correo electrónico y contraseña.');
       return; // Salir si los campos están vacíos
@@ -20,28 +22,33 @@ export default function Login() {
 
     try {
       // Construir la URL con los parámetros email y password
-      const response = await fetch(`http://localhost:8888/usuarios/verificar/${encodeURIComponent(email)}/${encodeURIComponent(password)}`, {
+      const response = await fetch(`${BACKEND_URI}/usuarios/verificar/${encodeURIComponent(email)}/${encodeURIComponent(password)}`, {
         method: 'POST', // Método POST
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        console.log('usuario', data.usuario);
         Cookies.set('token', data.token);
-        Cookies.set('usuario', data.usuario);
+        Cookies.set('rol', data.usuario.rol);
+        Cookies.set('user', data.usuario._id);
 
         // Redirigir dependiendo del rol
         if (data.usuario.rol === 'administrador') {
           router.push('/admin');
         } else {
-          router.push('/');
+          if(cart){
+            router.push('/cart');
+          }else{
+            router.push('/');
+          }
         }
       } else {
         setErrorMessage('Credenciales incorrectas');
       }
     } catch (error) {
       setErrorMessage('Error en la conexión con el servidor');
+      console.log(error);
     }
   };
 

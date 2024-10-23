@@ -1,4 +1,5 @@
 'use client'
+import { BACKEND_URI } from '@/app/common';
 import { SideAdmin } from '@/components'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
@@ -38,7 +39,7 @@ export default function Products(){
 
     const fetchProduct = async (idProducto: string) => {
         try {
-          const response = await fetch(`http://localhost:8888/productos/unico/${idProducto}`);
+          const response = await fetch(`${BACKEND_URI}/productos/unico/${idProducto}`);
           if (!response.ok) 
             throw new Error('Error fetching product');
           
@@ -103,7 +104,7 @@ export default function Products(){
     useEffect(() => {
         const fetchCategories = async () => {
           try {
-            const response = await fetch("http://localhost:8888/categorias"); 
+            const response = await fetch(`${BACKEND_URI}/categorias`); 
             if (!response.ok) {
               throw new Error('Error fetching data');
             }
@@ -145,7 +146,7 @@ export default function Products(){
             formData.append('stock', product.stock);
 
         try {
-        const response = await fetch(`http://localhost:8888/productos/${product.categoria_id}`, {
+        const response = await fetch(`${BACKEND_URI}/productos/${product.categoria_id}`, {
             method: 'POST',
             body: formData, // Enviar el FormData
         });
