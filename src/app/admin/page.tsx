@@ -9,7 +9,6 @@ import { IoCreateOutline, IoTrashOutline } from "react-icons/io5";
 export default function Admin() {
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const itemsPerPage = 10; // Número de productos por página
@@ -38,7 +37,6 @@ export default function Admin() {
     setSelectedImage(null);
   };
 
-
   useEffect(() => {
     const token = Cookies.get('token'); 
 
@@ -47,25 +45,45 @@ export default function Admin() {
     }
   }, [router]); 
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("http://localhost:8888/productos"); 
-        if (!response.ok) {
-          throw new Error('Error fetching data');
-        }
-        const data = await response.json();
-        setProducts(data); // 
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch("http://localhost:8888/productos"); 
+      if (!response.ok) {
+        throw new Error('Error fetching data');
       }
-    };
-
+      const data = await response.json();
+      setProducts(data); // 
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } 
+  };
+  
+  useEffect(() => {
     fetchProducts();
   }, []);
 
+  const deleteProduct = async (productId: string) => {
+    const result = confirm("Desea eliminar el producto?");
+    if (!result)
+      return;
+    
+    const deleteResponse = await fetch(`http://localhost:8888/productos/eliminarProducto/${productId}`, 
+      {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+
+    if (deleteResponse.status == 200)
+      fetchProducts();
+    else
+      alert('Hubo un problema al eliminar el producto');
+  }
+
+  const actualizarProducto = (productId: string) => {
+    router.push(`/admin/products?id=${productId}`);
+  }
 
   return (
     <div className="flex">
@@ -128,10 +146,14 @@ export default function Admin() {
                     </button>
                   </td>
                   <td className="border px-4 py-2">
-                    <IoTrashOutline />
+                    <button onClick={() => deleteProduct(product._id)}>
+                      <IoTrashOutline />
+                    </button>
                   </td>
                   <td className="border px-4 py-2">
-                    <IoCreateOutline />
+                    <button onClick={() => actualizarProducto(product._id)}>
+                      <IoCreateOutline />
+                    </button>
                   </td>
                 </tr>
               ))}

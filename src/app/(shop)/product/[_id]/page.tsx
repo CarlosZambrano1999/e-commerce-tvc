@@ -25,7 +25,6 @@ export default function ProductId( {params}: Props){
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log('id', _id);
   useEffect(() => {
     const fetchProduct = async () => {
       try {

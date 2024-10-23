@@ -1,10 +1,28 @@
 'use client'
 import { SideAdmin } from '@/components'
+import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import { useEffect, useState } from "react";
 
+interface LabelsI {
+    title: string;
+    saveButtonText: string;
+    cancelButtonText: string;
+    saveAlertMessage: string;
+    errorAlertMessage: string;
+}
 
 export default function Products(){
+    const searchParams = useSearchParams();
+    const id: string | null = searchParams.get('id');
+    const [estaActualizando, setestaActualizando] = useState(false);
+    const [label, setLabel] = useState<LabelsI>({
+        title: "Agregar un Producto",
+        saveButtonText: "Guardar",
+        cancelButtonText: "Cancelar",
+        saveAlertMessage: "Producto agregado con éxito",
+        errorAlertMessage: "Hubo un problema al agregar el producto",
+    });
 
     const [product, setProduct] = useState({
         nombre: '',
@@ -13,10 +31,64 @@ export default function Products(){
         descripcion: '',
         imagen: null,
         stock: '',
+        activo: true
       });
 
     const [categories, setCategories] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
+    const fetchProduct = async (idProducto: string) => {
+        try {
+          const response = await fetch(`http://localhost:8888/productos/unico/${idProducto}`);
+          if (!response.ok) 
+            throw new Error('Error fetching product');
+          
+          const data = await response.json();
+          setProduct(data);
+          setestaActualizando(true);
+        } catch (error) {
+          console.error('Error fetching product:', error);
+        }
+    };
+
+    const limpiarValores = () => {
+        setLabel(
+            {
+                title: "Agregar un Producto",
+                saveButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                saveAlertMessage: "Producto agregado con éxito",
+                errorAlertMessage: "Hubo un problema al agregar el producto",
+            }
+        );
+
+        setProduct({
+            nombre: '',
+            categoria_id: '',
+            precio: '',
+            descripcion: '',
+            imagen: null,
+            stock: '',
+            activo: true
+          });
+
+        setestaActualizando(false);
+    }
+
+    useEffect(() => {
+        if (id) {
+            fetchProduct(id);
+
+            setLabel({
+                title: "Actualizar un Producto",
+                saveButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                saveAlertMessage: "Producto actualizado con éxito",
+                errorAlertMessage: "Hubo un problema al actualizar el producto",
+            });
+        } else {
+            limpiarValores();
+        }
+    }, [id]);
     
     // Manejar cambios en los inputs del formulario
     const handleChange = (e) => {
@@ -62,6 +134,9 @@ export default function Products(){
 
         // Crear un FormData para enviar la imagen y otros datos
         const formData = new FormData();
+            if (estaActualizando && id)
+                formData.append("id", id);
+
             formData.append('nombre', product.nombre);
             formData.append('categoria_id', product.categoria_id); // Asegúrate de usar el ID correcto
             formData.append('precio', product.precio);
@@ -77,14 +152,15 @@ export default function Products(){
 
         const data = await response.json();
         if (response.ok) {
-            alert('Producto agregado con éxito');
+            alert(label.saveAlertMessage);
+            limpiarValores();
             // Opcional: redireccionar o limpiar el formulario
         } else {
             console.error('Error:', data);
-            alert('Hubo un problema al agregar el producto');
+            alert(label.errorAlertMessage);
         }
         } catch (error) {
-        console.error('Error de red:', error);
+            console.error('Error de red:', error);
         }
     };
     return (
@@ -96,7 +172,7 @@ export default function Products(){
             <div className="flex-1 p-10 ml-64">
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
                 <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                    <h2 className="text-center text-2xl font-bold mb-6">Agregar un Producto</h2>
+                    <h2 className="text-center text-2xl font-bold mb-6">{label.title}</h2>
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                     
                     {/* Categoría */}
@@ -195,13 +271,13 @@ export default function Products(){
                         type="submit"
                         className="px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-md"
                         >
-                        Confirm
+                        {label.saveButtonText}
                         </button>
                         <button
                         type="button"
                         className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold rounded-md"
                         >
-                        Cancel
+                        {label.cancelButtonText}
                         </button>
                     </div>
                     </form>
