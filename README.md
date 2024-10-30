@@ -31,7 +31,7 @@ Si el usuario está logueado nos lleva al modulo administrador donde se encuentr
 #Credenciales
 
 Administrador
-correo: juan.perez@televicentro.com
+correo: jperez@televicentro.com
 contraseña: asd.456
 
 Cliente
